@@ -9,6 +9,7 @@ const supabase = createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
+app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -29,7 +30,12 @@ app.post("/products", async function (req, res) {
         .insert([
             { name, price, description, stock, brand, spec },
         ])
-    res.send("POST Request");
+
+    if (error) {
+        res.status(500).json("falló el post")
+
+    }
+    res.status(200).json("post exitoso")
 });
 
 app.put("/products/:id", async function (req, res) {
