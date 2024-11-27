@@ -1,9 +1,57 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_URL, SUPABASE_KEY } = require("./config");
+const bodyParser = require("body-parser");
 
-app.get("/", (req, res) => res.send("Hello"));
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+app.get("/products", async (req, res) => {
+    const { data, error } = await supabase
+        .from('products')
+        .select()
+    res.send(data);
+});
+
+
+app.post("/products", async function (req, res) {
+    const { name, price, description, stock, brand, spec } = req.body
+
+    const { data, error } = await supabase
+        .from('products')
+        .insert([
+            { name, price, description, stock, brand, spec },
+        ])
+    res.send("POST Request");
+});
+
+app.put("/products/:id", async function (req, res) {
+    const params = req.params
+    const body = req.body
+    const { data, error } = await supabase
+        .from('products')
+        .update({ ...body })
+        .eq('id', params.id)
+        .select()
+    res.send("PUT Request");
+});
+
+app.delete("/products/:id", async function (req, res) {
+    const params = req.params
+    const body = req.body
+    const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', params.id)
+    res.send("DELETE Request");
+});
 
 app.listen(port, () =>
     console.log(`Example app listening at http://localhost:${port}`)
