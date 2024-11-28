@@ -22,6 +22,15 @@ app.get("/products", async (req, res) => {
     res.send(data);
 });
 
+app.get("/products/:id", async (req, res) => {
+    const params = req.params
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', params.id)
+    res.send(data[0]);
+});
+
 
 app.post("/products", async function (req, res) {
     const { name, price, description, stock, brand, spec } = req.body
