@@ -15,13 +15,18 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// trae todos los productos de una tienda
 app.get("/products", async (req, res) => {
+    const store_id = req.query.store_id
     const { data, error } = await supabase
         .from('products')
-        .select()
+        .select('*')
+        .eq("store_id", store_id)
     res.send(data);
 });
 
+
+// trae un producto por id
 app.get("/products/:id", async (req, res) => {
     const params = req.params
     const { data, error } = await supabase
@@ -31,14 +36,14 @@ app.get("/products/:id", async (req, res) => {
     res.send(data[0]);
 });
 
-
+// crea un producto de una tienda
 app.post("/products", async function (req, res) {
-    const { name, price, description, stock, brand, spec } = req.body
+    const { name, price, description, stock, brand, spec, store_id } = req.body
 
     const { data, error } = await supabase
         .from('products')
         .insert([
-            { name, price, description, stock, brand, spec },
+            { name, price, description, stock, brand, spec, store_id },
         ])
 
     if (error) {
@@ -48,6 +53,8 @@ app.post("/products", async function (req, res) {
     res.status(200).json("post exitoso")
 });
 
+
+// actualiza un producto 
 app.put("/products/:id", async function (req, res) {
     const params = req.params
     const body = req.body
@@ -59,6 +66,7 @@ app.put("/products/:id", async function (req, res) {
     res.send("PUT Request");
 });
 
+// elimina un producto 
 app.delete("/products/:id", async function (req, res) {
     const params = req.params
     const body = req.body
