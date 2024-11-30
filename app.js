@@ -18,12 +18,22 @@ app.use(bodyParser.json());
 // trae todos los productos de una tienda
 app.get("/products", async (req, res) => {
     const store_id = req.query.store_id
+    const order = req.query.order
     const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq("store_id", store_id)
-    res.send(data);
+        .order('stock', { ascending: order === 'asc' });
+    if (error) {
+        res.status(500).json("falló el get")
+
+    }
+    res.status(200).json(data)
+
+
+
 });
+
 
 
 // trae un producto por id
@@ -33,8 +43,13 @@ app.get("/products/:id", async (req, res) => {
         .from('products')
         .select('*')
         .eq('id', params.id)
-    res.send(data[0]);
+    if (error) {
+        res.status(500).json("falló el get")
+
+    }
+    res.status(200).json(data[0])
 });
+
 
 // crea un producto de una tienda
 app.post("/products", async function (req, res) {
@@ -63,7 +78,11 @@ app.put("/products/:id", async function (req, res) {
         .update({ ...body })
         .eq('id', params.id)
         .select()
-    res.send("PUT Request");
+    if (error) {
+        res.status(500).json("falló el put")
+
+    }
+    res.status(200).json("put exitoso")
 });
 
 // elimina un producto 
@@ -75,6 +94,11 @@ app.delete("/products/:id", async function (req, res) {
         .delete()
         .eq('id', params.id)
     res.send("DELETE Request");
+    if (error) {
+        res.status(500).json("falló el delete")
+
+    }
+    res.status(200).json("delete exitoso")
 });
 
 app.listen(port, () =>
